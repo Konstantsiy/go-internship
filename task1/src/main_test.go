@@ -31,3 +31,31 @@ func TestReverse(t *testing.T) {
 		}
 	}
 }
+
+func TestCapitaliseString(t *testing.T) {
+	testTable := []struct {
+		source   string
+		expected string
+	}{
+		{
+			source:   "heLLO, wOrld!",
+			expected: "Hello, World!",
+		},
+		{
+			source:   "__Хабра__ хабр",
+			expected: "__хабра__ Хабр",
+		},
+		{
+			source:   "12345 some t ext",
+			expected: "12345 Some T Ext",
+		},
+	}
+
+	for _, testCase := range testTable {
+		result := CapitalizeString(testCase.source)
+		t.Logf("Calling CapitalizeString(%s), result: %s", testCase.source, result)
+		if result != testCase.expected {
+			t.Errorf("Incorrect result. Expect %s, got %s", testCase.expected, result)
+		}
+	}
+}
