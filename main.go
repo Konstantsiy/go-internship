@@ -1,4 +1,6 @@
-package main
+package ita
+
+import "unicode"
 
 // ReverseString to reverse a string.
 func ReverseString(str string) string {
@@ -14,8 +16,8 @@ func ReverseString(str string) string {
 func CapitalizeString(str string) string {
 	runes := []rune(str)
 
-	if (runes[0] >= 'a' && runes[0] <= 'z') || (runes[0] >= 'а' && runes[0] <= 'я') {
-		runes[0] -= 32
+	if unicode.IsLower(runes[0]) {
+		runes[0] = unicode.ToUpper(runes[0])
 	}
 
 	return string(runes)
