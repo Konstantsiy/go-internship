@@ -6,56 +6,56 @@ import (
 
 func TestReverse(t *testing.T) {
 	testTable := []struct {
-		str      string
-		expected string
+		Source   string
+		Expected string
 	}{
 		{
-			str:      "Writing a programmatic test",
-			expected: "tset citammargorp a gnitirW",
+			Source:   "Writing a programmatic test",
+			Expected: "tset citammargorp a gnitirW",
 		},
 		{
-			str:      "12 13 114 15 16 -10",
-			expected: "01- 61 51 411 31 21",
+			Source:   "12 13 114 15 16 -10",
+			Expected: "01- 61 51 411 31 21",
 		},
 		{
-			str:      "localhost:5432",
-			expected: "2345:tsohlacol",
+			Source:   "localhost:5432",
+			Expected: "2345:tsohlacol",
 		},
 	}
 
-	for _, testCase := range testTable {
-		result := ReverseString(testCase.str)
-		t.Logf("Calling ReverseString(%s), result: %s", testCase.str, result)
-		if result != testCase.expected {
-			t.Errorf("Incorrect result. Expect %s, got %s", testCase.expected, result)
+	for _, tc := range testTable {
+		result := ReverseString(tc.Source)
+
+		if result != tc.Expected {
+			t.Errorf("Incorrect result. Expect %s, got %s", tc.Expected, result)
 		}
 	}
 }
 
-func TestCapitaliseString(t *testing.T) {
+func TestCapitalizeString(t *testing.T) {
 	testTable := []struct {
-		source   string
-		expected string
+		Source   string
+		Expected string
 	}{
 		{
-			source:   "heLLO, wOrld!",
-			expected: "Hello, World!",
+			Source:   "i am trying to break this code",
+			Expected: "I am trying to break this code",
 		},
 		{
-			source:   "__Хабра__ хабр",
-			expected: "__хабра__ Хабр",
+			Source:   "ўстаньце, хлопцы, ўстаньце, браткі! Ўстань ты, наша старана!",
+			Expected: "Ўстаньце, хлопцы, ўстаньце, браткі! Ўстань ты, наша старана!",
 		},
 		{
-			source:   "12345 some t ext",
-			expected: "12345 Some T Ext",
+			Source:   "12345 some text",
+			Expected: "12345 some text",
 		},
 	}
 
-	for _, testCase := range testTable {
-		result := CapitalizeString(testCase.source)
-		t.Logf("Calling CapitalizeString(%s), result: %s", testCase.source, result)
-		if result != testCase.expected {
-			t.Errorf("Incorrect result. Expect %s, got %s", testCase.expected, result)
+	for _, tc := range testTable {
+		result := CapitalizeString(tc.Source)
+
+		if result != tc.Expected {
+			t.Errorf("Incorrect result. Expect %s, got %s", tc.Expected, result)
 		}
 	}
 }
