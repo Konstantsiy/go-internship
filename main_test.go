@@ -1,4 +1,4 @@
-package ita
+package main
 
 import (
 	"testing"
@@ -46,8 +46,8 @@ func TestCapitalizeString(t *testing.T) {
 			Expected: "Ўстаньце, хлопцы, ўстаньце, браткі! Ўстань ты, наша старана!",
 		},
 		{
-			Source:   "12345 some text",
-			Expected: "12345 some text",
+			Source:   "",
+			Expected: "",
 		},
 	}
 
