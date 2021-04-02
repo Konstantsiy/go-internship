@@ -1,3 +1,3 @@
-module github.com/Konstantsiy/go-internship
+module strfuncs
 
 go 1.13
