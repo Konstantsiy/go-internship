@@ -1,4 +1,4 @@
-package main
+package strfuncs
 
 import (
 	"testing"
@@ -42,8 +42,8 @@ func TestCapitalizeString(t *testing.T) {
 			Expected: "I am trying to break this code",
 		},
 		{
-			Source:   "ўстаньце, хлопцы, ўстаньце, браткі! Ўстань ты, наша старана!",
-			Expected: "Ўстаньце, хлопцы, ўстаньце, браткі! Ўстань ты, наша старана!",
+			Source:   "ўстаньце, хлопцы!",
+			Expected: "Ўстаньце, хлопцы!",
 		},
 		{
 			Source:   "",
