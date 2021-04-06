@@ -1,4 +1,4 @@
-package strfuncs
+package strfunc
 
 import (
 	"fmt"
