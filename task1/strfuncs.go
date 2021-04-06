@@ -1,5 +1,5 @@
 // Package strfuncs provides functions for reverses and capitalizes strings.
-package strfunc
+package strfuncs
 
 import (
 	"unicode"
