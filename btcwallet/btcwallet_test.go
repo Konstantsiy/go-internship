@@ -1,81 +1,91 @@
 package btcwallet
 
 import (
+	"errors"
 	"testing"
 )
 
 func TestBtcWallet_Deposit(t *testing.T) {
 	const (
-		startBalance Bitcoin = 0
-		precision    int     = 2
+		startBalance        Bitcoin = 20
+		precision           int     = 3
+		depositErrorMessage string  = "the Bitcoins amount for the deposit must be positive"
 	)
 
 	testTable := []struct {
-		Source   []Bitcoin
-		Expected Bitcoin
+		Source      Bitcoin
+		Expected    Bitcoin
+		ExpectedErr error
 	}{
 		{
-			Source:   []Bitcoin{2.5, 20, 30, 45.5, 38},
-			Expected: 136,
+			Source:      23.456,
+			Expected:    43.456,
+			ExpectedErr: nil,
 		},
 		{
-			Source:   []Bitcoin{12, -12.45, 10.45},
-			Expected: 22.45,
-		},
-		{
-			Source:   []Bitcoin{-12, -3.45, 0},
-			Expected: 0,
+			Source:      -0.234,
+			Expected:    startBalance,
+			ExpectedErr: errors.New(depositErrorMessage),
 		},
 	}
 
 	for _, tc := range testTable {
 		wallet := NewBtcWallet(startBalance)
 
-		for _, btcAmount := range tc.Source {
-			_ = wallet.Deposit(btcAmount)
-		}
-		result := wallet.GetBalance().RoundTo(precision)
-
-		if result != tc.Expected {
-			t.Errorf("Incorrect result. Expect %.2f, got %.2f", tc.Expected, result)
+		if err := wallet.Deposit(tc.Source); err != nil {
+			if err.Error() != tc.ExpectedErr.Error() {
+				t.Error(err.Error())
+			}
+		} else {
+			result := wallet.GetBalance().RoundTo(precision)
+			if result != tc.Expected {
+				t.Errorf("Incorrect result. Expect %.3f, got %.3f", tc.Expected, result)
+			}
 		}
 	}
 }
 
 func TestBtcWallet_Withdraw(t *testing.T) {
 	const (
-		startBalance Bitcoin = 1000
-		precision    int     = 2
+		startBalance         Bitcoin = 1000
+		precision            int     = 3
+		withdrawErrorMessage string  = "the Bitcoins amount for the withdraw must be limited by the balance"
 	)
 
 	testTable := []struct {
-		Source   []Bitcoin
-		Expected Bitcoin
+		Source      Bitcoin
+		Expected    Bitcoin
+		ExpectedErr error
 	}{
 		{
-			Source:   []Bitcoin{0.34, 450, 500, 34.24, 10.2},
-			Expected: 5.22,
+			Source:      999.445,
+			Expected:    0.555,
+			ExpectedErr: nil,
 		},
 		{
-			Source:   []Bitcoin{0, -12.45, 1000.01},
-			Expected: 1000,
+			Source:      -12.34,
+			Expected:    startBalance,
+			ExpectedErr: errors.New(withdrawErrorMessage),
 		},
 		{
-			Source:   []Bitcoin{999, 0.5, 0.49},
-			Expected: 0.01,
+			Source:      1000.34,
+			Expected:    startBalance,
+			ExpectedErr: errors.New(withdrawErrorMessage),
 		},
 	}
 
 	for _, tc := range testTable {
 		wallet := NewBtcWallet(startBalance)
 
-		for _, btcAmount := range tc.Source {
-			_ = wallet.Withdraw(btcAmount)
-		}
-		result := wallet.GetBalance().RoundTo(precision)
-
-		if result != tc.Expected {
-			t.Errorf("Incorrect result. Expect %.2f, got %.2f", tc.Expected, result)
+		if err := wallet.Withdraw(tc.Source); err != nil {
+			if err.Error() != tc.ExpectedErr.Error() {
+				t.Error(err.Error())
+			}
+		} else {
+			result := wallet.GetBalance().RoundTo(precision)
+			if result != tc.Expected {
+				t.Errorf("Incorrect result. Expect %.3f, got %.3f", tc.Expected, result)
+			}
 		}
 	}
 }
