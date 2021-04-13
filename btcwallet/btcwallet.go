@@ -7,6 +7,12 @@ import (
 	"sync"
 )
 
+// Package level Errors.
+var (
+	ErrDepositAmount  = errors.New("the Bitcoins amount for the deposit must be positive")
+	ErrWithdrawAmount = errors.New("the Bitcoins amount for the withdraw must be limited by the balance")
+)
+
 // Bitcoin representation via the float64 data type.
 type Bitcoin float64
 
@@ -20,8 +26,8 @@ func (b Bitcoin) RoundTo(precision int) Bitcoin {
 
 // BtcWallet implements a simple bitcoins wallet for deposit, withdraw and get current balance.
 type BtcWallet struct {
-	sync.Mutex         // Embedded sync.Mutex that safe wallet for concurrent deposit and withdrawal operations.
-	balance    Bitcoin // balance stores the current value of the bitcoin(float64) balance in the wallet.
+	mutex   sync.Mutex // mutex that safe wallet for concurrent deposit and withdrawal operations.
+	balance Bitcoin    // balance stores the current value of the bitcoin(float64) balance in the wallet.
 }
 
 // NewBtcWallet returns a new BtcWallet which stores a predefined balance value.
@@ -31,11 +37,11 @@ func NewBtcWallet(balance Bitcoin) *BtcWallet {
 
 // Deposit increments the wallet balance by the given argument.
 func (wallet *BtcWallet) Deposit(amount Bitcoin) error {
-	wallet.Lock()
-	defer wallet.Unlock()
+	wallet.mutex.Lock()
+	defer wallet.mutex.Unlock()
 
 	if amount <= 0 {
-		return errors.New("the Bitcoins amount for the deposit must be positive")
+		return ErrDepositAmount
 	}
 	wallet.balance += amount
 
@@ -44,11 +50,11 @@ func (wallet *BtcWallet) Deposit(amount Bitcoin) error {
 
 // Withdraw decrements the wallet balance by the given argument.
 func (wallet *BtcWallet) Withdraw(amount Bitcoin) error {
-	wallet.Lock()
-	defer wallet.Unlock()
+	wallet.mutex.Lock()
+	defer wallet.mutex.Unlock()
 
 	if amount <= 0 || amount > wallet.balance {
-		return errors.New("the Bitcoins amount for the withdraw must be limited by the balance")
+		return ErrWithdrawAmount
 	}
 	wallet.balance -= amount
 

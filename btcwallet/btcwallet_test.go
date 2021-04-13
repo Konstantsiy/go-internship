@@ -1,10 +1,30 @@
 package btcwallet
 
 import (
-	"errors"
 	"sync"
 	"testing"
 )
+
+func assertNoError(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Errorf("No error expected but got: %v", err)
+	}
+}
+
+func assertError(t *testing.T, givenError, expectedError error) {
+	t.Helper()
+	if givenError != expectedError {
+		t.Errorf("Eepected %v error but got another one: %v", expectedError, givenError)
+	}
+}
+
+func assertBalanceEquality(t *testing.T, result, expected Bitcoin) {
+	t.Helper()
+	if result != expected {
+		t.Errorf("Incorrect result. Expect %.3f, got %.3f", expected, result)
+	}
+}
 
 func TestBtcWallet_Race(t *testing.T) {
 	var startBalance Bitcoin = 20
@@ -13,33 +33,29 @@ func TestBtcWallet_Race(t *testing.T) {
 	wg := &sync.WaitGroup{}
 
 	for i := 0; i < 3; i++ {
-		wg.Add(1)
-		go func(w *BtcWallet) {
-			defer wg.Done()
-			for j := 0; j < 2; j++ {
-				var err error
-				if err = w.Deposit(10); err != nil {
-					t.Errorf(err.Error())
-				}
-				if err = w.Withdraw(5); err != nil {
-					t.Errorf(err.Error())
-				}
-			}
-		}(wallet)
+		for j := 0; j < 2; j++ {
+			wg.Add(2)
+			go func() {
+				defer wg.Done()
+				err := wallet.Deposit(10)
+				assertNoError(t, err)
+			}()
+			go func() {
+				defer wg.Done()
+				err := wallet.Withdraw(5)
+				assertNoError(t, err)
+			}()
+		}
 	}
 	wg.Wait()
 	result := wallet.GetBalance()
-
-	if expected != result {
-		t.Errorf("Incorrect result. Expect %.2f, got %.2f", expected, result)
-	}
+	assertBalanceEquality(t, result, expected)
 }
 
 func TestBtcWallet_Deposit(t *testing.T) {
 	const (
-		startBalance        Bitcoin = 20
-		precision           int     = 3
-		depositErrorMessage string  = "the Bitcoins amount for the deposit must be positive"
+		startBalance Bitcoin = 20
+		precision    int     = 3
 	)
 
 	testTable := []struct {
@@ -55,7 +71,7 @@ func TestBtcWallet_Deposit(t *testing.T) {
 		{
 			SumToDeposit:  -0.234,
 			Expected:      startBalance,
-			ExpectedError: errors.New(depositErrorMessage),
+			ExpectedError: ErrDepositAmount,
 		},
 	}
 
@@ -63,23 +79,18 @@ func TestBtcWallet_Deposit(t *testing.T) {
 		wallet := NewBtcWallet(startBalance)
 
 		if err := wallet.Deposit(tc.SumToDeposit); err != nil {
-			if err.Error() != tc.ExpectedError.Error() {
-				errorAssertionHelper(t, err, tc.ExpectedError)
-			}
+			assertError(t, err, tc.ExpectedError)
 		}
-		result := wallet.GetBalance().RoundTo(precision)
 
-		if result != tc.Expected {
-			t.Errorf("incorrect result. Expect %.3f, got %.3f", tc.Expected, result)
-		}
+		result := wallet.GetBalance().RoundTo(precision)
+		assertBalanceEquality(t, result, tc.Expected)
 	}
 }
 
 func TestBtcWallet_Withdraw(t *testing.T) {
 	const (
-		startBalance         Bitcoin = 1000
-		precision            int     = 3
-		withdrawErrorMessage string  = "the Bitcoins amount for the withdraw must be limited by the balance"
+		startBalance Bitcoin = 1000
+		precision    int     = 3
 	)
 
 	testTable := []struct {
@@ -95,12 +106,12 @@ func TestBtcWallet_Withdraw(t *testing.T) {
 		{
 			SumToWithdraw: -12.34,
 			Expected:      startBalance,
-			ExpectedError: errors.New(withdrawErrorMessage),
+			ExpectedError: ErrWithdrawAmount,
 		},
 		{
 			SumToWithdraw: 1000.34,
 			Expected:      startBalance,
-			ExpectedError: errors.New(withdrawErrorMessage),
+			ExpectedError: ErrWithdrawAmount,
 		},
 	}
 
@@ -108,21 +119,10 @@ func TestBtcWallet_Withdraw(t *testing.T) {
 		wallet := NewBtcWallet(startBalance)
 
 		if err := wallet.Withdraw(tc.SumToWithdraw); err != nil {
-			if err.Error() != tc.ExpectedError.Error() {
-				errorAssertionHelper(t, err, tc.ExpectedError)
-			}
+			assertError(t, err, tc.ExpectedError)
 		}
+
 		result := wallet.GetBalance().RoundTo(precision)
-
-		if result != tc.Expected {
-			t.Errorf("incorrect result. Expect %.3f, got %.3f", tc.Expected, result)
-		}
-	}
-}
-
-func errorAssertionHelper(t *testing.T, givenError, expectedError error) {
-	t.Helper()
-	if givenError.Error() != expectedError.Error() {
-		t.Error("expected error but didn't get one")
+		assertBalanceEquality(t, result, tc.Expected)
 	}
 }
