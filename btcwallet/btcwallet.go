@@ -26,8 +26,8 @@ func (b Bitcoin) RoundTo(precision int) Bitcoin {
 
 // BtcWallet implements a simple bitcoins wallet for deposit, withdraw and get current balance.
 type BtcWallet struct {
-	mutex   sync.Mutex // mutex that safe wallet for concurrent deposit and withdrawal operations.
-	balance Bitcoin    // balance stores the current value of the bitcoin(float64) balance in the wallet.
+	sync.Mutex         // Embedded mutex that safe wallet for concurrent deposit and withdrawal operations.
+	balance    Bitcoin // balance stores the current value of the bitcoin(float64) balance in the wallet.
 }
 
 // NewBtcWallet returns a new BtcWallet which stores a predefined balance value.
@@ -37,8 +37,8 @@ func NewBtcWallet(balance Bitcoin) *BtcWallet {
 
 // Deposit increments the wallet balance by the given argument.
 func (wallet *BtcWallet) Deposit(amount Bitcoin) error {
-	wallet.mutex.Lock()
-	defer wallet.mutex.Unlock()
+	wallet.Lock()
+	defer wallet.Unlock()
 
 	if amount <= 0 {
 		return ErrDepositAmount
@@ -50,8 +50,8 @@ func (wallet *BtcWallet) Deposit(amount Bitcoin) error {
 
 // Withdraw decrements the wallet balance by the given argument.
 func (wallet *BtcWallet) Withdraw(amount Bitcoin) error {
-	wallet.mutex.Lock()
-	defer wallet.mutex.Unlock()
+	wallet.Lock()
+	defer wallet.Unlock()
 
 	if amount <= 0 || amount > wallet.balance {
 		return ErrWithdrawAmount

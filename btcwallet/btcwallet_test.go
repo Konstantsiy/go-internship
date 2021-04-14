@@ -27,26 +27,28 @@ func assertBalanceEquality(t *testing.T, result, expected Bitcoin) {
 }
 
 func TestBtcWallet_Race(t *testing.T) {
-	var startBalance Bitcoin = 20
-	var expected Bitcoin = 50
+	const (
+		startBalance Bitcoin = 0
+		expected     Bitcoin = 50
+	)
+
 	wallet := NewBtcWallet(startBalance)
 	wg := &sync.WaitGroup{}
 
-	for i := 0; i < 3; i++ {
-		for j := 0; j < 2; j++ {
-			wg.Add(2)
-			go func() {
-				defer wg.Done()
-				err := wallet.Deposit(10)
-				assertNoError(t, err)
-			}()
-			go func() {
-				defer wg.Done()
-				err := wallet.Withdraw(5)
-				assertNoError(t, err)
-			}()
-		}
+	for i := 0; i < 10; i++ {
+		wg.Add(2)
+		go func() {
+			defer wg.Done()
+			err := wallet.Deposit(10)
+			assertNoError(t, err)
+		}()
+		go func() {
+			defer wg.Done()
+			err := wallet.Withdraw(5)
+			assertNoError(t, err)
+		}()
 	}
+
 	wg.Wait()
 	result := wallet.GetBalance()
 	assertBalanceEquality(t, result, expected)
