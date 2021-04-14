@@ -40,7 +40,7 @@ func (wallet *BtcWallet) Deposit(amount Bitcoin) error {
 	wallet.Lock()
 	defer wallet.Unlock()
 
-	if amount <= 0 {
+	if amount < 0 {
 		return ErrDepositAmount
 	}
 	wallet.balance += amount
@@ -53,7 +53,7 @@ func (wallet *BtcWallet) Withdraw(amount Bitcoin) error {
 	wallet.Lock()
 	defer wallet.Unlock()
 
-	if amount <= 0 || amount > wallet.balance {
+	if amount < 0 || amount > wallet.balance {
 		return ErrWithdrawAmount
 	}
 	wallet.balance -= amount

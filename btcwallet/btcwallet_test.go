@@ -28,8 +28,8 @@ func assertBalanceEquality(t *testing.T, result, expected Bitcoin) {
 
 func TestBtcWallet_Race(t *testing.T) {
 	const (
-		startBalance Bitcoin = 0
-		expected     Bitcoin = 50
+		startBalance Bitcoin = 20
+		expected     Bitcoin = 70
 	)
 
 	wallet := NewBtcWallet(startBalance)
@@ -55,76 +55,69 @@ func TestBtcWallet_Race(t *testing.T) {
 }
 
 func TestBtcWallet_Deposit(t *testing.T) {
-	const (
-		startBalance Bitcoin = 20
-		precision    int     = 3
-	)
+	t.Run("NoDepositErrors", func(t *testing.T) {
+		wallet := NewBtcWallet(Bitcoin(23.00))
 
-	testTable := []struct {
-		SumToDeposit  Bitcoin
-		Expected      Bitcoin
-		ExpectedError error
-	}{
-		{
-			SumToDeposit:  23.456,
-			Expected:      43.456,
-			ExpectedError: nil,
-		},
-		{
-			SumToDeposit:  -0.234,
-			Expected:      startBalance,
-			ExpectedError: ErrDepositAmount,
-		},
-	}
+		err := wallet.Deposit(Bitcoin(23.456))
+		assertNoError(t, err)
 
-	for _, tc := range testTable {
-		wallet := NewBtcWallet(startBalance)
+		err = wallet.Deposit(Bitcoin(0))
+		assertNoError(t, err)
 
-		if err := wallet.Deposit(tc.SumToDeposit); err != nil {
-			assertError(t, err, tc.ExpectedError)
-		}
+		expected := Bitcoin(46.456)
+		result := wallet.GetBalance().RoundTo(3)
+		assertBalanceEquality(t, expected, result)
+	})
 
-		result := wallet.GetBalance().RoundTo(precision)
-		assertBalanceEquality(t, result, tc.Expected)
-	}
+	t.Run("NegativeDepositAmount", func(t *testing.T) {
+		wallet := NewBtcWallet(Bitcoin(10.00))
+
+		err := wallet.Deposit(Bitcoin(-0.123))
+		assertError(t, err, ErrDepositAmount)
+
+		err = wallet.Deposit(Bitcoin(0.234))
+		assertNoError(t, err)
+
+		expected := Bitcoin(10.234)
+		result := wallet.GetBalance().RoundTo(3)
+		assertBalanceEquality(t, expected, result)
+	})
 }
 
 func TestBtcWallet_Withdraw(t *testing.T) {
-	const (
-		startBalance Bitcoin = 1000
-		precision    int     = 3
-	)
+	t.Run("NoWithdrawErrors", func(t *testing.T) {
+		wallet := NewBtcWallet(Bitcoin(1000))
 
-	testTable := []struct {
-		SumToWithdraw Bitcoin
-		Expected      Bitcoin
-		ExpectedError error
-	}{
-		{
-			SumToWithdraw: 999.445,
-			Expected:      0.555,
-			ExpectedError: nil,
-		},
-		{
-			SumToWithdraw: -12.34,
-			Expected:      startBalance,
-			ExpectedError: ErrWithdrawAmount,
-		},
-		{
-			SumToWithdraw: 1000.34,
-			Expected:      startBalance,
-			ExpectedError: ErrWithdrawAmount,
-		},
-	}
+		err := wallet.Withdraw(Bitcoin(999.445))
+		assertNoError(t, err)
 
-	for _, tc := range testTable {
-		wallet := NewBtcWallet(startBalance)
+		expected := Bitcoin(0.555)
+		result := wallet.GetBalance().RoundTo(3)
+		assertBalanceEquality(t, expected, result)
+	})
 
-		if err := wallet.Withdraw(tc.SumToWithdraw); err != nil {
-			assertError(t, err, tc.ExpectedError)
-		}
+	t.Run("NegativeWithdrawAmount", func(t *testing.T) {
+		wallet := NewBtcWallet(Bitcoin(1000))
 
-		result := wallet.GetBalance().RoundTo(precision)
-		assertBalanceEquality(t, result, tc.Expected)
-	}
+		err := wallet.Withdraw(Bitcoin(-12.34))
+		assertError(t, err, ErrWithdrawAmount)
+
+		err = wallet.Withdraw(0.123)
+		assertNoError(t, err)
+
+		expected := Bitcoin(999.877)
+		result := wallet.GetBalance().RoundTo(3)
+		assertBalanceEquality(t, expected, result)
+	})
+
+	t.Run("TooLargeWithdrawAmount", func(t *testing.T) {
+		wallet := NewBtcWallet(Bitcoin(1000))
+
+		err := wallet.Withdraw(Bitcoin(1000.001))
+		assertError(t, err, ErrWithdrawAmount)
+
+		expected := Bitcoin(1000.000)
+		result := wallet.GetBalance().RoundTo(3)
+		assertBalanceEquality(t, result, expected)
+	})
 }
