@@ -41,11 +41,13 @@ func TestBtcWallet_Race(t *testing.T) {
 			defer wg.Done()
 			err := wallet.Deposit(10)
 			assertNoError(t, err)
+			wallet.GetBalance()
 		}()
 		go func() {
 			defer wg.Done()
 			err := wallet.Withdraw(5)
 			assertNoError(t, err)
+			wallet.GetBalance()
 		}()
 	}
 
