@@ -63,5 +63,7 @@ func (wallet *BtcWallet) Withdraw(amount Bitcoin) error {
 
 // GetBalance returns a current balance.
 func (wallet *BtcWallet) GetBalance() Bitcoin {
+	wallet.Lock()
+	defer wallet.Unlock()
 	return wallet.balance
 }
