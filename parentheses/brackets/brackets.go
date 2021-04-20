@@ -1,5 +1,5 @@
-// Package algorithm checks whether the passed string is a balanced sequence of brackets.
-package algorithm
+// Package brackets checks whether the passed string is a balanced sequence of brackets.
+package brackets
 
 // Map of brackets for comparison.
 var brackets = map[rune]rune{
