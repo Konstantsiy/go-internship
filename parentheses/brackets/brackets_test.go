@@ -38,7 +38,7 @@ func TestIsBalanced(t *testing.T) {
 	for _, tc := range testTable {
 		result := IsBalanced(tc.Str)
 		if result != tc.Expected {
-			t.Errorf("Incorrect result. Expect %t, got %t for string >>> %v", tc.Expected, result, tc.Str)
+			t.Errorf("Incorrect result. Expect %t, got %t", tc.Expected, result)
 		}
 	}
 }
