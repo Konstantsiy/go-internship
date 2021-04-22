@@ -1,12 +1,23 @@
 // Package bracketsMap checks whether the passed string is a balanced sequence of bracketsMap.
 package brackets
 
-// Map of bracketsMap for comparison.
-var bracketsMap = map[rune]rune{
-	'(': ')',
-	'[': ']',
-	'{': '}',
-}
+import (
+	"errors"
+	"math/rand"
+	"time"
+)
+
+// Package level Error.
+var ErrIncorrectLength = errors.New("incorrect Length, you need a positive number")
+
+var (
+	bracketsMap = map[rune]rune{
+		'(': ')',
+		'[': ']',
+		'{': '}',
+	}
+	bracketsArray = "(){}[]"
+)
 
 // IsBalanced verifies if the given string is a balanced sequence of bracketsMap.
 func IsBalanced(str string) bool {
@@ -27,4 +38,20 @@ func IsBalanced(str string) bool {
 	}
 
 	return len(stack) == 0
+}
+
+// GenerateRandomSequence generates the random sequence of brackets with the specified Length.
+func GenerateRandomSequence(length int) (string, error) {
+	if length <= 0 {
+		return "", ErrIncorrectLength
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	bytes := make([]byte, length)
+
+	for i := 0; i < length; i++ {
+		bytes[i] = bracketsArray[rand.Intn(len(bracketsArray))]
+	}
+
+	return string(bytes), nil
 }
