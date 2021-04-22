@@ -48,9 +48,10 @@ func GenerateRandomSequence(length int) (string, error) {
 
 	rand.Seed(time.Now().UnixNano())
 	bytes := make([]byte, length)
+	randomLimit := len(bracketsArray)
 
 	for i := 0; i < length; i++ {
-		bytes[i] = bracketsArray[rand.Intn(len(bracketsArray))]
+		bytes[i] = bracketsArray[rand.Intn(randomLimit)]
 	}
 
 	return string(bytes), nil

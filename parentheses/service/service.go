@@ -3,18 +3,11 @@
 package service
 
 import (
-	"errors"
+	"ita/parentheses/brackets"
 	"log"
-	"math/rand"
 	"net/http"
 	"strconv"
-	"time"
 )
-
-// Package level Error.
-var ErrIncorrectLength = errors.New("incorrect length when you need a positive number")
-
-const bracketsArray = "(){}[]"
 
 // processRequest accepts a query with length parameter and
 // returns the random generated string of brackets with specified length.
@@ -23,30 +16,20 @@ func processRequest(w http.ResponseWriter, r *http.Request) {
 
 	length, err := strconv.Atoi(n)
 	if err != nil || length <= 0 {
-		http.Error(w, ErrIncorrectLength.Error(), http.StatusBadRequest)
+		http.Error(w, "Incorrect request param of string length. Toy need a positive number", http.StatusBadRequest)
+		return
 	}
 
-	resultStr, err := generateRandomSequence(length)
+	resultStr, err := brackets.GenerateRandomSequence(length)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write([]byte(resultStr))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
-	w.Write([]byte(resultStr))
-}
-
-// generateRandomSequence generates the random sequence of brackets with the specified length.
-func generateRandomSequence(length int) (string, error) {
-	if length <= 0 {
-		return "", ErrIncorrectLength
-	}
-
-	rand.Seed(time.Now().UnixNano())
-	runes := make([]rune, length)
-	for i := 0; i < length; i++ {
-		runes[i] = rune(bracketsArray[rand.Intn(length)])
-	}
-
-	return string(runes), nil
 }
 
 // Run starts starts handling requests.
