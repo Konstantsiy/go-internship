@@ -19,7 +19,7 @@ var (
 	bracketsArray = "(){}[]"
 )
 
-// IsBalanced verifies if the given string is a balanced sequence of bracketsMap.
+// IsBalanced verifies if the given string is a balanced sequence of brackets.
 func IsBalanced(str string) bool {
 	var stack []rune
 	runes := []rune(str)
