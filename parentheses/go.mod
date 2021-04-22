@@ -1,3 +1,3 @@
-module github.com/Konstantsiy/go-internship/brackets
+module github.com/Konstantsiy/go-internship/parentheses
 
 go 1.13
