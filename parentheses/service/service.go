@@ -3,10 +3,11 @@
 package service
 
 import (
-	"ita/parentheses/brackets"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/Konstantsiy/go-internship/parentheses/brackets"
 )
 
 // processRequest accepts a query with length parameter and
@@ -16,7 +17,7 @@ func processRequest(w http.ResponseWriter, r *http.Request) {
 
 	length, err := strconv.Atoi(n)
 	if err != nil || length <= 0 {
-		http.Error(w, "Incorrect request param of string length. Toy need a positive number", http.StatusBadRequest)
+		http.Error(w, "Incorrect request param of string length. You need a positive number", http.StatusBadRequest)
 		return
 	}
 

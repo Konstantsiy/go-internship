@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// Package level Error.
 var ErrIncorrectLength = errors.New("incorrect Length, you need a positive number")
 
 var (
