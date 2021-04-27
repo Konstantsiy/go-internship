@@ -10,9 +10,9 @@ import (
 	"github.com/Konstantsiy/go-internship/parentheses/brackets"
 )
 
-// processRequest accepts a query with length parameter and
+// ProcessRequest accepts a query with length parameter and
 // returns the random generated string of brackets with specified length.
-func processRequest(w http.ResponseWriter, r *http.Request) {
+func ProcessRequest(w http.ResponseWriter, r *http.Request) {
 	n := r.URL.Query().Get("n")
 
 	length, err := strconv.Atoi(n)
@@ -35,7 +35,7 @@ func processRequest(w http.ResponseWriter, r *http.Request) {
 
 // Run starts handling requests.
 func Run() {
-	http.HandleFunc("/generate", processRequest)
+	http.HandleFunc("/generate", ProcessRequest)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}

@@ -19,8 +19,8 @@ const (
 	RequestURL = "http://localhost:8080/generate?n="
 )
 
-// makeRequest processes a request with a specific URL.
-func makeRequest(url string) (string, error) {
+// MakeRequest processes a request with a specific URL.
+func MakeRequest(url string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -46,9 +46,9 @@ func main() {
 		balancedCounter := 0
 
 		for i := 0; i < N; i++ {
-			sequence, err := makeRequest(url)
+			sequence, err := MakeRequest(url)
 			if err != nil {
-				log.Fatal(err.Error())
+				log.Println(err.Error())
 			}
 			if brackets.IsBalanced(sequence) {
 				balancedCounter++
