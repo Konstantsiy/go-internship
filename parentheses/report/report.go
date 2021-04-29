@@ -15,12 +15,14 @@ import (
 const (
 	// N is a total number of requests.
 	N = 1000
-	//RequestURL is the url for service request.
+	// RequestURL is the url for service request.
 	RequestURL = "http://localhost:8080/generate?n="
+	// WorkerPoolSize is goroutines worker size.
+	WorkerPoolSize = 50
 )
 
-// MakeRequest processes a request with a specific URL.
-func MakeRequest(url string) (string, error) {
+// makeRequest processes a request with a specific URL.
+func makeRequest(url string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -39,18 +41,30 @@ func MakeRequest(url string) (string, error) {
 	return string(body), nil
 }
 
-// main starts calculating the percentage of balanced sequences.
-func main() {
+// Start starts calculating the percentage of balanced sequences.
+func Start() {
+	requestsNumber := N / WorkerPoolSize
+
 	for length := 2; length <= 8; length += 2 {
 		url := RequestURL + strconv.Itoa(length)
 		balancedCounter := 0
+		resultsPool := make(chan bool, WorkerPoolSize)
+
+		for i := 0; i < WorkerPoolSize; i++ {
+			go func() {
+				for j := 0; j < requestsNumber; j++ {
+					result, err := makeRequest(url)
+					if err != nil {
+						log.Println(err.Error())
+						resultsPool <- false
+					}
+					resultsPool <- brackets.IsBalanced(result)
+				}
+			}()
+		}
 
 		for i := 0; i < N; i++ {
-			sequence, err := MakeRequest(url)
-			if err != nil {
-				log.Println(err.Error())
-			}
-			if brackets.IsBalanced(sequence) {
+			if <-resultsPool {
 				balancedCounter++
 			}
 		}

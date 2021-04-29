@@ -34,7 +34,7 @@ func TestProcessRequest(t *testing.T) {
 		}
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(ProcessRequest)
+		handler := http.HandlerFunc(processRequest)
 		handler.ServeHTTP(rr, req)
 
 		if rr.Code != tc.ExpectedStatusCode {
