@@ -1,5 +1,5 @@
 // Package report calculates the percentage of balanced rows for specified length.
-package main
+package report
 
 import (
 	"errors"
@@ -41,30 +41,40 @@ func makeRequest(url string) (string, error) {
 	return string(body), nil
 }
 
+// workerPoolProcess processes the required number of requests from the counter
+// and writes the result to the results channel.
+func workerPoolProcess(url string, counter <-chan int, results chan<- bool) {
+	for range counter {
+		result, err := makeRequest(url)
+		if err != nil {
+			log.Println(err.Error())
+			results <- false
+		}
+		results <- brackets.IsBalanced(result)
+	}
+}
+
 // Start starts calculating the percentage of balanced sequences.
-func Start() {
+func main() {
+	resultPool := make(chan bool, N)
 	requestsNumber := N / WorkerPoolSize
 
 	for length := 2; length <= 8; length += 2 {
 		url := RequestURL + strconv.Itoa(length)
 		balancedCounter := 0
-		resultsPool := make(chan bool, WorkerPoolSize)
+		requestPool := make(chan int, requestsNumber)
 
 		for i := 0; i < WorkerPoolSize; i++ {
-			go func() {
-				for j := 0; j < requestsNumber; j++ {
-					result, err := makeRequest(url)
-					if err != nil {
-						log.Println(err.Error())
-						resultsPool <- false
-					}
-					resultsPool <- brackets.IsBalanced(result)
-				}
-			}()
+			go workerPoolProcess(url, requestPool, resultPool)
 		}
 
 		for i := 0; i < N; i++ {
-			if <-resultsPool {
+			requestPool <- i
+		}
+		close(requestPool)
+
+		for i := 0; i < N; i++ {
+			if <-resultPool {
 				balancedCounter++
 			}
 		}
