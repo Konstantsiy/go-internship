@@ -55,7 +55,7 @@ func workerPoolProcess(url string, counter <-chan int, results chan<- bool) {
 }
 
 // Start starts calculating the percentage of balanced sequences.
-func main() {
+func Start() {
 	resultPool := make(chan bool, N)
 	requestsNumber := N / WorkerPoolSize
 
