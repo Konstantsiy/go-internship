@@ -10,11 +10,11 @@ of brackets. The service uses the following functions:
 
 You can start the service with the command:
 ```bigquery
-go run server/main.go
+go run main/main.go
 ```
 
 The reporter allows you to calculate the percentage of balanced sequences
 for the specified lengths (2, 4, 8) and print the results to stdout with the command:
 ```bigquery
-go run client/main.go
+go run report/main.go
 ```

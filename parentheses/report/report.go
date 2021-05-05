@@ -1,5 +1,5 @@
-// Package report calculates the percentage of balanced rows for specified length.
-package report
+// Package main calculates the percentage of balanced rows for specified length.
+package main
 
 import (
 	"errors"
@@ -54,8 +54,8 @@ func workerPoolProcess(url string, counter <-chan int, results chan<- bool) {
 	}
 }
 
-// Start starts calculating the percentage of balanced sequences.
-func Start() {
+// main starts calculating the percentage of balanced sequences.
+func main() {
 	resultPool := make(chan bool, N)
 	requestsNumber := N / WorkerPoolSize
 
