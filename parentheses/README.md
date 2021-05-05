@@ -16,5 +16,5 @@ go run main/main.go
 The reporter allows you to calculate the percentage of balanced sequences
 for the specified lengths (2, 4, 8) and print the results to stdout with the command:
 ```bigquery
-go run report/main.go
+go run report/report.go
 ```
