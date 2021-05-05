@@ -21,9 +21,8 @@ var (
 // IsBalanced verifies if the given string is a balanced sequence of brackets.
 func IsBalanced(str string) bool {
 	var stack []rune
-	runes := []rune(str)
 
-	for _, r := range runes {
+	for _, r := range str {
 		switch r {
 		case '(', '[', '{':
 			stack = append(stack, r)

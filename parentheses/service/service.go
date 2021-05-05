@@ -1,6 +1,6 @@
 // Package service implements a parentheses web service that
 // generates a random sequence of parentheses of the given length.
-package main
+package service
 
 import (
 	"log"
@@ -33,8 +33,8 @@ func processRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// main starts starts handling requests.
-func main() {
+// Run starts handling requests.
+func Run() {
 	http.HandleFunc("/generate", processRequest)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
